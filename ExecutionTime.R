@@ -2,6 +2,7 @@
 ### Execution Time
 ##  MJ, 2019-02-24, v0.1 
 ##  inspired by 'timeR package https://cran.r-project.org/web/packages/timeR/index.html
+##  github: https://github.com/mjaniec2013/ExecutionTime
 
 library(R6)
 library(glue)
@@ -38,15 +39,19 @@ ET <- R6Class("ET",
         
         cat("Timer not started.\n")
         
-        return(NA)
-        
-      } else {
-      
-        current_time <- Sys.time()
-        
-        cat(glue("Elapsed time for timer [{private$time_keeper_name}] started @ {private$time_keeper_start} - {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}"), "\n")
+        return(NULL)
         
       }
+      
+      if (!is.na(private$time_keeper_stop)) {
+        
+        cat("Timer stopped.\n")
+        
+      }
+        
+      current_time <- Sys.time()
+        
+      cat(glue("Elapsed time for timer [{private$time_keeper_name}] started @ {private$time_keeper_start} - {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}"), "\n")
       
     },
     
@@ -56,33 +61,38 @@ ET <- R6Class("ET",
         
         cat("Timer not started.\n")
         
-        return(NA)
-        
-      } else {
-        
-        current_time <- Sys.time()
-        
-        stages_num   <- length(private$time_keeper_stages)
-        
-        if (is.na(this_stage_name)) {
-          
-          this_stage_name <- glue("Stage {as.character(stages_num+1)}")
-          
-        }
-        
-        cat(glue("Recoring stage #{stages_num+1} [{this_stage_name}] for [{private$time_keeper_name}] @ {current_time}, elapsed: {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}."), "\n")
-        
-        private$time_keeper_stages[[stages_num+1]] <- 
-          
-          list(
-            
-            stage_time = current_time,
-            
-            stage_name = this_stage_name
-            
-          )
+        return(NULL)
         
       }
+      
+      if (!is.na(private$time_keeper_stop)) {
+        
+        cat("Timer stopped. Cannot add stage.\n")
+        return(NULL)
+        
+      }
+      
+      current_time <- Sys.time()
+      
+      stages_num   <- length(private$time_keeper_stages)
+      
+      if (is.na(this_stage_name)) {
+        
+        this_stage_name <- glue("Stage {as.character(stages_num+1)}")
+        
+      }
+      
+      cat(glue("Recoring stage #{stages_num+1} [{this_stage_name}] for [{private$time_keeper_name}] @ {current_time}, elapsed: {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}."), "\n")
+      
+      private$time_keeper_stages[[stages_num+1]] <- 
+        
+        list(
+          
+          stage_time = current_time,
+          
+          stage_name = this_stage_name
+          
+        )
       
     },
     
@@ -129,7 +139,13 @@ ET <- R6Class("ET",
     
     stop = function() {
       
+      current_time             <- Sys.time()
       
+      private$time_keeper_stop <- current_time
+      
+      cat( glue("Timer [{private$time_keeper_name}] started @ {private$time_keeper_start} stopped @ {private$time_keeper_stop} - time: {Round2(difftime(private$time_keeper_stop, private$time_keeper_start), 2)}"), "\n\n" )
+      
+      self$stages()
       
     }
     
@@ -149,6 +165,9 @@ ET <- R6Class("ET",
                          
 )
 
+
+### testing
+
 et <- ET$new()
 
 et$elapsed()
@@ -164,4 +183,11 @@ et$stage()
 et$stage(5)
 
 et$stages()
+
+et$stop()
+
+et$elapsed()
+
+et$stage("additional")
+
 
