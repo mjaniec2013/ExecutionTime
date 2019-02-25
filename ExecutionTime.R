@@ -55,7 +55,7 @@ ET <- R6Class("ET",
     
     eta = function() {
       
-      
+		# not implemented yet
       
     },
     
@@ -101,16 +101,10 @@ ET <- R6Class("ET",
     
     # 'short' - show recorded stages only
     stages = function( short=FALSE ) {
-      
-      if (is.na(private$time_keeper_start)) {
-        
-        cat("Timer not started.\n")
-        
-        return(NA)
-        
-      } else {
-        
-        stages_num   <- length(private$time_keeper_stages)
+	
+	  if ( private$is_running(msg_stopped=NULL) ) {
+	  
+		stages_num   <- length(private$time_keeper_stages)
         
         if (short) {
           
@@ -143,8 +137,12 @@ ET <- R6Class("ET",
           )
           
         }
-        
-      }
+	  
+	  } else {
+	  
+		return(NULL)
+	  
+	  }
       
     },
     
@@ -197,7 +195,7 @@ ET <- R6Class("ET",
         
       }
       
-      if (!is.na(private$time_keeper_stop)) {
+      if (!is.null(msg_stopped) && !is.na(private$time_keeper_stop)) {
         
         cat(msg_stopped)
 		
