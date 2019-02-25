@@ -151,7 +151,7 @@ ET <- R6Class("ET",
       
       self$stages()
       
-    }
+    },
     
     verbose = function() {
       
