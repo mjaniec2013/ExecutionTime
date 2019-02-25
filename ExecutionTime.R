@@ -53,7 +53,9 @@ ET <- R6Class("ET",
         
       current_time <- Sys.time()
         
-      cat(glue("Elapsed time for timer [{private$time_keeper_name}] started @ {private$time_keeper_start} - {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}"), "\n")
+      cat(glue( paste("Elapsed time for timer [{private$time_keeper_name}] started @ {private$time_keeper_start}",
+                      "- {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}") ), 
+          "\n")
       
     },
     
@@ -86,7 +88,10 @@ ET <- R6Class("ET",
       
       if (private$is_verbose)
       
-        cat(glue("Recording stage #{stages_num+1} [{this_stage_name}] for [{private$time_keeper_name}] @ {current_time}, elapsed: {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}."), "\n")
+        cat(glue( paste("Recording stage #{stages_num+1} [{this_stage_name}]",
+                        "for [{private$time_keeper_name}] @ {current_time},",
+                        "elapsed: {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}.") ), 
+                  "\n")
       
       private$time_keeper_stages[[stages_num+1]] <- 
         
@@ -101,7 +106,8 @@ ET <- R6Class("ET",
     },
     
     
-    stages = function() {
+    # 'short' - show recorded stages only
+    stages = function( short=FALSE ) {
       
       if (is.na(private$time_keeper_start)) {
         
@@ -113,7 +119,15 @@ ET <- R6Class("ET",
         
         stages_num   <- length(private$time_keeper_stages)
         
-        cat( glue("{stages_num} stage(s) recorded for [{private$time_keeper_name}] started @ {private$time_keeper_start}:"), "\n\n" )
+        if (short) {
+          
+          cat( glue("{stages_num} stage(s) recorded:"), "\n\n" )
+          
+        } else {
+        
+          cat( glue("{stages_num} stage(s) recorded for [{private$time_keeper_name}] started @ {private$time_keeper_start}:"), "\n\n" )
+          
+        }
         
         if (stages_num>0) {
           
@@ -149,7 +163,7 @@ ET <- R6Class("ET",
       
       cat( glue("Timer [{private$time_keeper_name}] started @ {private$time_keeper_start} stopped @ {private$time_keeper_stop} - time: {Round2(difftime(private$time_keeper_stop, private$time_keeper_start), 2)}"), "\n\n" )
       
-      self$stages()
+      self$stages(short=TRUE)
       
     },
     
