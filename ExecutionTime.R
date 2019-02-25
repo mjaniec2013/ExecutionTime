@@ -1,7 +1,7 @@
 
 ### Execution Time
 ##  MJ, 2019-02-24, v0.1 
-##  inspired by 'timeR package https://cran.r-project.org/web/packages/timeR/index.html
+##  inspired by 'timeR' package https://cran.r-project.org/web/packages/timeR/index.html
 ##  github: https://github.com/mjaniec2013/ExecutionTime
 
 library(R6)
@@ -29,7 +29,9 @@ ET <- R6Class("ET",
         
       }
       
-      cat(glue("Starting timer: [{private$time_keeper_name}] @ {private$time_keeper_start}."), "\n")
+      if (private$is_verbose)
+      
+        cat(glue("Starting timer: [{private$time_keeper_name}] @ {private$time_keeper_start}."), "\n")
       
     },
     
@@ -82,7 +84,9 @@ ET <- R6Class("ET",
         
       }
       
-      cat(glue("Recoring stage #{stages_num+1} [{this_stage_name}] for [{private$time_keeper_name}] @ {current_time}, elapsed: {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}."), "\n")
+      if (private$is_verbose)
+      
+        cat(glue("Recording stage #{stages_num+1} [{this_stage_name}] for [{private$time_keeper_name}] @ {current_time}, elapsed: {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}."), "\n")
       
       private$time_keeper_stages[[stages_num+1]] <- 
         
@@ -149,6 +153,12 @@ ET <- R6Class("ET",
       
     }
     
+    verbose = function() {
+      
+      private$is_verbose <- !private$is_verbose
+      
+    }
+    
   ),                         
                          
   private = list(
@@ -159,7 +169,9 @@ ET <- R6Class("ET",
     
     time_keeper_stages = list(),
     
-    time_keeper_stop   = NA
+    time_keeper_stop   = NA,
+    
+    is_verbose         = TRUE
     
   )                     
                          
