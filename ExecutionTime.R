@@ -35,73 +35,66 @@ ET <- R6Class("ET",
       
     },
     
-    elapsed = function( verbose=TRUE ) {
+    elapsed = function() {
+            	  
+	  if ( private$is_running() ) {
+	  
+		current_time <- Sys.time()
+			
+		  cat(glue( paste("Elapsed time for timer [{private$time_keeper_name}] started @ {private$time_keeper_start}",
+						  "- {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}") ), 
+			  "\n")
+	  	  
+	  } else {
+	
+		return(NULL)
+		  
+	  }
       
-      if (is.na(private$time_keeper_start)) {
-        
-        cat("Timer not started.\n")
-        
-        return(NULL)
-        
-      }
+    },
+    
+    eta = function() {
       
-      if (!is.na(private$time_keeper_stop)) {
-        
-        cat("Timer stopped.\n")
-        
-      }
-        
-      current_time <- Sys.time()
-        
-      cat(glue( paste("Elapsed time for timer [{private$time_keeper_name}] started @ {private$time_keeper_start}",
-                      "- {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}") ), 
-          "\n")
+      
       
     },
     
     stage = function( this_stage_name=NA ) {
+          	  
+	  if ( private$is_running(msg_stopped="Timer stopped. Cannot add stage.\n") ) {
       
-      if (is.na(private$time_keeper_start)) {
-        
-        cat("Timer not started.\n")
-        
-        return(NULL)
-        
-      }
-      
-      if (!is.na(private$time_keeper_stop)) {
-        
-        cat("Timer stopped. Cannot add stage.\n")
-        return(NULL)
-        
-      }
-      
-      current_time <- Sys.time()
-      
-      stages_num   <- length(private$time_keeper_stages)
-      
-      if (is.na(this_stage_name)) {
-        
-        this_stage_name <- glue("Stage {as.character(stages_num+1)}")
-        
-      }
-      
-      if (private$is_verbose)
-      
-        cat(glue( paste("Recording stage #{stages_num+1} [{this_stage_name}]",
-                        "for [{private$time_keeper_name}] @ {current_time},",
-                        "elapsed: {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}.") ), 
-                  "\n")
-      
-      private$time_keeper_stages[[stages_num+1]] <- 
-        
-        list(
-          
-          stage_time = current_time,
-          
-          stage_name = this_stage_name
-          
-        )
+		  current_time <- Sys.time()
+		  
+		  stages_num   <- length(private$time_keeper_stages)
+		  
+		  if (is.na(this_stage_name)) {
+			
+			this_stage_name <- glue("Stage {as.character(stages_num+1)}")
+			
+		  }
+		  
+		  if (private$is_verbose)
+		  
+			cat(glue( paste("Recording stage #{stages_num+1} [{this_stage_name}]",
+							"for [{private$time_keeper_name}] @ {current_time},",
+							"elapsed: {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}.") ), 
+					  "\n")
+		  
+		  private$time_keeper_stages[[stages_num+1]] <- 
+			
+			list(
+			  
+			  stage_time = current_time,
+			  
+			  stage_name = this_stage_name
+			  
+			)
+		
+	  } else {
+	  
+		return(NULL)
+	  
+	  }
       
     },
     
@@ -185,7 +178,36 @@ ET <- R6Class("ET",
     
     time_keeper_stop   = NA,
     
-    is_verbose         = TRUE
+    is_verbose         = TRUE,
+    
+    
+	
+	is_running = function( 
+		msg_not_started = "Timer not started.\n",
+		msg_stopped     = "Timer stopped.\n"
+	) {
+	
+	  running <- TRUE
+      
+      if (is.na(private$time_keeper_start)) {
+        
+        cat(msg_not_started)
+        
+        running <- FALSE
+        
+      }
+      
+      if (!is.na(private$time_keeper_stop)) {
+        
+        cat(msg_stopped)
+		
+		running <- FALSE
+        
+      }
+      
+	  return(running)
+	  
+    }
     
   )                     
                          
