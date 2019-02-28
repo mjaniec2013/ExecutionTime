@@ -102,47 +102,55 @@ ET <- R6Class("ET",
     # 'short' - show recorded stages only
     stages = function( short=FALSE ) {
 	
-	  if ( private$is_running(msg_stopped=NULL) ) {
-	  
-		stages_num   <- length(private$time_keeper_stages)
-        
-        if (short) {
+  	  if ( private$is_running(msg_stopped=NULL) ) {
+  	  
+  		stages_num   <- length(private$time_keeper_stages)
           
-          cat( glue("{stages_num} stage(s) recorded:"), "\n\n" )
-          
-        } else {
-        
-          cat( glue("{stages_num} stage(s) recorded for [{private$time_keeper_name}] started @ {private$time_keeper_start}:"), "\n\n" )
-          
-        }
-        
-        if (stages_num>0) {
-          
-          data.table( 
+          if (short) {
             
-            stage_name      = 
+            cat( glue("{stages_num} stage(s) recorded:"), "\n\n" )
+            
+          } else {
+          
+            cat( glue("{stages_num} stage(s) recorded for [{private$time_keeper_name}] started @ {private$time_keeper_start}:"), "\n\n" )
+            
+          }
+          
+          if (stages_num>0) {
+            
+            # stages table construction:
+            
+            
+            
+            data.table( 
               
-              sapply(private$time_keeper_stages, function(x) x$stage_name),
-                      
-            stage_time      = 
-              
-              sapply(private$time_keeper_stages, function(x) as.character(x$stage_time)),
-                      
-            time_from_start = 
+              stage_name      = 
+                
+                sapply(private$time_keeper_stages, function(x) x$stage_name),
                         
-              sapply(private$time_keeper_stages, 
-                        function(x) 
-                            as.numeric(difftime(x$stage_time, private$time_keeper_start, unit="secs"))) 
+              stage_time      = 
+                
+                sapply(private$time_keeper_stages, function(x) as.character(x$stage_time)),
+              
+              time_from_prev =
+                
+                as.numeric(diff(c(private$time_keeper_start, sapply(private$time_keeper_stages, function(x) x$stage_time)), unit="secs")),
+                        
+              time_from_start = 
+                          
+                sapply(private$time_keeper_stages, 
+                          function(x) 
+                              as.numeric(difftime(x$stage_time, private$time_keeper_start, unit="secs"))) 
+              
+            )
             
-          )
-          
-        }
+          }
+  	  
+  	  } else {
+  	  
+  		  return(NULL)
 	  
-	  } else {
-	  
-		return(NULL)
-	  
-	  }
+	    }
       
     },
     
@@ -211,29 +219,5 @@ ET <- R6Class("ET",
                          
 )
 
-
-### testing
-
-et <- ET$new()
-
-et$elapsed()
-
-et$start("New timer")
-
-et$elapsed()
-
-# et$stages()
-
-et$stage()
-
-et$stage(5)
-
-et$stages()
-
-et$stop()
-
-et$elapsed()
-
-et$stage("additional")
 
 
