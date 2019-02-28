@@ -37,48 +37,48 @@ ET <- R6Class("ET",
     
     elapsed = function() {
             	  
-	  if ( private$is_running() ) {
-	  
-		current_time <- Sys.time()
-			
-		  cat(glue( paste("Elapsed time for timer [{private$time_keeper_name}] started @ {private$time_keeper_start}",
-						  "- {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}") ), 
-			  "\n")
-	  	  
-	  } else {
-	
-		return(NULL)
-		  
-	  }
+  	  if ( private$is_running() ) {
+  	  
+  		current_time <- Sys.time()
+  			
+  		  cat(glue( paste("Elapsed time for timer [{private$time_keeper_name}] started @ {private$time_keeper_start}",
+  						  "- {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}") ), 
+  			  "\n")
+  	  	  
+  	  } else {
+  	
+  		  return(NULL)
+  		  
+  	  }
       
     },
     
     eta = function() {
       
-		# not implemented yet
+		  # TODO: 'eta' not implemented yet
       
     },
     
     stage = function( this_stage_name=NA ) {
           	  
-	  if ( private$is_running(msg_stopped="Timer stopped. Cannot add stage.\n") ) {
+	    if ( private$is_running(msg_stopped="Timer stopped. Cannot add stage.\n") ) {
       
-		  current_time <- Sys.time()
-		  
-		  stages_num   <- length(private$time_keeper_stages)
-		  
-		  if (is.na(this_stage_name)) {
-			
-			this_stage_name <- glue("Stage {as.character(stages_num+1)}")
+  		  current_time <- Sys.time()
+  		  
+  		  stages_num   <- length(private$time_keeper_stages)
+  		  
+  		  if (is.na(this_stage_name)) {
+  			
+  			this_stage_name <- glue("Stage {as.character(stages_num+1)}")
 			
 		  }
 		  
 		  if (private$is_verbose)
 		  
-			cat(glue( paste("Recording stage #{stages_num+1} [{this_stage_name}]",
-							"for [{private$time_keeper_name}] @ {current_time},",
-							"elapsed: {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}.") ), 
-					  "\n")
+  			cat(glue( paste("Recording stage #{stages_num+1} [{this_stage_name}]",
+  							"for [{private$time_keeper_name}] @ {current_time},",
+  							"elapsed: {Round2(difftime(current_time, private$time_keeper_start, units='auto'), 4)}.") ), 
+  					  "\n")
 		  
 		  private$time_keeper_stages[[stages_num+1]] <- 
 			
@@ -92,65 +92,64 @@ ET <- R6Class("ET",
 		
 	  } else {
 	  
-		return(NULL)
+		  return(NULL)
 	  
 	  }
       
-    },
-    
+  },
     
     # 'short' - show recorded stages only
     stages = function( short=FALSE ) {
-	
-  	  if ( private$is_running(msg_stopped=NULL) ) {
-  	  
-  		stages_num   <- length(private$time_keeper_stages)
+      
+      if ( private$is_running(msg_stopped=NULL) ) {
+        
+        stages_num   <- length(private$time_keeper_stages)
+        
+        if (short) {
           
-          if (short) {
-            
-            cat( glue("{stages_num} stage(s) recorded:"), "\n\n" )
-            
-          } else {
+          cat( glue("{stages_num} stage(s) recorded:"), "\n\n" )
           
-            cat( glue("{stages_num} stage(s) recorded for [{private$time_keeper_name}] started @ {private$time_keeper_start}:"), "\n\n" )
-            
-          }
+        } else {
           
-          if (stages_num>0) {
+          cat( glue("{stages_num} stage(s) recorded for [{private$time_keeper_name}] started @ {private$time_keeper_start}:"), "\n\n" )
+          
+        }
+        
+        if (stages_num>0) {
+          
+          # stages table construction:
+          
+          
+          
+          data.table( 
             
-            # stages table construction:
-            
-            
-            
-            data.table( 
+            stage_name      = 
               
-              stage_name      = 
-                
-                sapply(private$time_keeper_stages, function(x) x$stage_name),
-                        
-              stage_time      = 
-                
-                sapply(private$time_keeper_stages, function(x) as.character(x$stage_time)),
-              
-              time_from_prev =
-                
-                as.numeric(diff(c(private$time_keeper_start, sapply(private$time_keeper_stages, function(x) x$stage_time)), unit="secs")),
-                        
-              time_from_start = 
-                          
-                sapply(private$time_keeper_stages, 
-                          function(x) 
-                              as.numeric(difftime(x$stage_time, private$time_keeper_start, unit="secs"))) 
-              
-            )
+              sapply(private$time_keeper_stages, function(x) x$stage_name),
             
-          }
-  	  
-  	  } else {
-  	  
-  		  return(NULL)
-	  
-	    }
+            stage_time      = 
+              
+              sapply(private$time_keeper_stages, function(x) as.character(x$stage_time)),
+            
+            time_from_prev =
+              
+              as.numeric(diff(c(private$time_keeper_start, sapply(private$time_keeper_stages, function(x) x$stage_time)), unit="secs")),
+            
+            time_from_start = 
+              
+              sapply(private$time_keeper_stages, 
+                     function(x) 
+                       as.numeric(difftime(x$stage_time, private$time_keeper_start, unit="secs"))) 
+            
+          )
+          
+        }
+        
+      } else {
+        
+        return(NULL)
+        
+      }
       
     },
     
@@ -173,6 +172,7 @@ ET <- R6Class("ET",
     }
     
   ),                         
+  
                          
   private = list(
     
