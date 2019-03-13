@@ -99,7 +99,7 @@ ET <- R6Class("ET",
   },
     
     # 'short' - show recorded stages only
-    stages = function( short=FALSE ) {
+    stages = function( short=FALSE, time_stopped=FALSE ) {
       
       if ( private$is_running(msg_stopped=NULL) ) {
         
@@ -119,29 +119,43 @@ ET <- R6Class("ET",
           
           # stages table construction:
           
-          
-          
-          data.table( 
+            stages_tbl <-
             
-            stage_name      = 
+              data.table( 
+                
+                stage_name      = 
+                  
+                  sapply(private$time_keeper_stages, function(x) x$stage_name),
+                
+                stage_time      = 
+                  
+                  sapply(private$time_keeper_stages, function(x) as.character(x$stage_time)),
+                
+                time_from_prev =
+                  
+                  round(as.numeric(diff(c(private$time_keeper_start, sapply(private$time_keeper_stages, function(x) x$stage_time)), unit="secs")), 2),
+                
+                time_from_start = 
+                  
+                  round(sapply(private$time_keeper_stages, 
+                         function(x) 
+                           as.numeric(difftime(x$stage_time, private$time_keeper_start, unit="secs"))), 2) 
+                
+              )
+            
+            if (time_stopped) {
               
-              sapply(private$time_keeper_stages, function(x) x$stage_name),
-            
-            stage_time      = 
+              stages_tbl[, time_to_next :=
+                            
+                              round(as.numeric(diff(c(sapply(private$time_keeper_stages, function(x) x$stage_time), private$time_keeper_stop), unit="secs")), 2)]
               
-              sapply(private$time_keeper_stages, function(x) as.character(x$stage_time)),
-            
-            time_from_prev =
+              stages_tbl[, time_share := round(time_to_next/sum(time_to_next)*100, 2)]
               
-              as.numeric(diff(c(private$time_keeper_start, sapply(private$time_keeper_stages, function(x) x$stage_time)), unit="secs")),
+            }
             
-            time_from_start = 
-              
-              sapply(private$time_keeper_stages, 
-                     function(x) 
-                       as.numeric(difftime(x$stage_time, private$time_keeper_start, unit="secs"))) 
+            # print(stages_tbl)
             
-          )
+            return(stages_tbl[])
           
         }
         
@@ -161,7 +175,7 @@ ET <- R6Class("ET",
       
       cat( glue("Timer [{private$time_keeper_name}] started @ {private$time_keeper_start} stopped @ {private$time_keeper_stop} - time: {Round2(difftime(private$time_keeper_stop, private$time_keeper_start), 2)}"), "\n\n" )
       
-      self$stages(short=TRUE)
+      self$stages(short=TRUE, time_stopped=TRUE)
       
     },
     
